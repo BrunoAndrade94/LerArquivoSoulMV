@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace ConsoleApp1.Excessoes.Relatorio
 {
     class RelatorioException : Exception
     {
-        public RelatorioException(string mensagem) : base(mensagem) { }
+        public RelatorioException(){ }
     }
 }

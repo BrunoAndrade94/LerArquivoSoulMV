@@ -9,7 +9,6 @@ namespace ConsoleApp1.Interfaces
     interface IRelatorio
     {
         //string Nome { get; set; }
-
         void Executar();
     }
 }

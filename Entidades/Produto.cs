@@ -62,7 +62,7 @@ namespace ConsoleApp1.Entidades
 
         public override string ToString()
         {
-            return $@"{Codigo} {Nome} {Unidade} {Lote} {Validade.ToString("d")} {SaldoHospital} {ConsumoPrevisto}";
+            return $@"{Codigo, -7} {Nome, -20} {Unidade, -9} {Lote, -10} {Validade.ToString("d"), -10} {SaldoHospital, -8} {ConsumoPrevisto, -8}";
         }
     }
 }

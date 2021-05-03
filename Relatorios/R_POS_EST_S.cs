@@ -1,10 +1,7 @@
-﻿using ConsoleApp1.Entidades;
+﻿using ConsoleApp1.Arquivos;
+using ConsoleApp1.Entidades;
 using ConsoleApp1.Excessoes.Relatorio;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleApp1.Relatorios
 {
@@ -12,19 +9,11 @@ namespace ConsoleApp1.Relatorios
     {
         public static string Nome { get; private set; } = "R_POS_EST_S.csv";
 
-
         public static void Escrita(string arquivo, List<Produto> listaProduto)
         {
-            try
-            {
-                Verificar.ListaValida(listaProduto);
-                Le11Linhas(arquivo, listaProduto);
-                Le13Linhas(arquivo, listaProduto);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            Verificar.ListaValida(listaProduto);
+            Le11Linhas(arquivo, listaProduto);
+            Le13Linhas(arquivo, listaProduto);
         }
 
         private static List<Produto> Le11Linhas(string arquivo, List<Produto> listaProduto)
@@ -69,6 +58,12 @@ namespace ConsoleApp1.Relatorios
                 return listaProduto;
             }
             return null;
+        }
+
+        public static bool EhMeuNome(string nome)
+        {
+            LerArquivo.NomeArquivo = nome;
+            return (Nome == nome) ? true : false;
         }
     }
 }

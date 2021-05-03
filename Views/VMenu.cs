@@ -7,72 +7,116 @@ using System.Threading.Tasks;
 using ConsoleApp1.Interfaces;
 using System.Threading;
 using ConsoleApp1.Menus.Opcoes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ConsoleApp1.Views
 {
-    class VMenu : IOpcaoMenu
+    class VMenu/* : IOpcaoMenu*/
     {
         public static IList<Menu> itensDoMenu = GetMenuItens();
-        private int opcao = 2;
+        private static int opcao;
 
-        public void Executar()
+        public static void Executar()
         {
-            do
+            Console.Clear();
+            // inciando a aplicacao
+            if (TipoDeConsulta())
             {
-                ImprimirOpcao(GetMenuItens());
-                int.TryParse(Console.ReadLine(), out opcao);
-                if (opcao == 0 || opcao > itensDoMenu.Count + 1)
-                {
-                    Console.WriteLine($"Digite números de 1 a {itensDoMenu.Count + 1}");
-                    Console.ReadKey();
-                    Console.Clear();
-                    break;
-                }
-                Executar2(opcao);
+                ExecutarConsulta(opcao);
+                Executar();
             }
-            while (opcao != 1);
-            Console.WriteLine("TCHAAUUU");
+            // encerrando a aplicacao
+            else
+            {
+                ImprimeEncerramento();                
+                Environment.Exit(0);
+            }
         }
 
-        public static IOpcaoMenu Executar2(int opcao)
+        private static void ImprimeEncerramento()
+        {
+            Console.WriteLine();
+            string titulo = $"  Encerrando.";
+            var espacos = new string('~', 27);
+            Console.WriteLine(espacos);
+            Console.Write(titulo);
+            ImprimeEspera(titulo);
+            Console.WriteLine("\n" + espacos);
+            Thread.Sleep(1000);
+        }
+
+        // imprime um tempo de espera
+        private static void ImprimeEspera(string titulo)
+        {
+            Thread.Sleep(10);
+            for (int i = 0;  i < titulo.Length; i++)
+            {
+                Console.Write('.');
+                Thread.Sleep(60);
+            }
+        }
+
+        // imprime opcao selecionada
+        private static void ImprimeOpcaoSelecionada(Menu itemCapturado)
+        {
+            Console.WriteLine();
+            string titulo = $" Executando..: {itemCapturado.Titulo} ";
+            string aguarde = $"Aguarde!";
+            Console.WriteLine(new string('~', titulo.Length));
+            Console.WriteLine(titulo, aguarde);
+            Console.WriteLine(new string('~', titulo.Length));
+            ImprimeEspera(titulo);
+        }
+
+        // executar consulta
+        public static void ExecutarConsulta(int opcao)
         {
             // selecionar o item do menu
-            IOpcaoMenu itemSelecionado;
+            IOpcaoMenu itemSelecionado; // pode tirar essa linha
             Menu itemCapturado = itensDoMenu[opcao - 2];
             Type tipoClasse = itemCapturado.TipoClasse;
             itemSelecionado = Activator.CreateInstance(tipoClasse) as IOpcaoMenu;
 
             // imprime opcao selecionada
-            Console.WriteLine();
-            string titulo = $"Executando..: {itemCapturado.Titulo}";
-            //Thread.Sleep(200000);
-            Console.WriteLine(new string('~', titulo.Length));
-            Console.WriteLine(titulo);
-            Console.WriteLine(new string('~', titulo.Length));
+            ImprimeOpcaoSelecionada(itemCapturado);
 
             itemSelecionado.Executar();
             Console.WriteLine("\n\nTecle algo para continuar...".ToUpper());
-            return itemSelecionado;
+            Console.ReadLine();
+            //return itemSelecionado;
         }
 
-        public static void TipoDeConsulta()
+        // ao digitar caracter fora das opcoes, pede para digitar novamente
+        private static void DigiteNovamente(int opcao)
         {
-            IList<Menu> menUItens = GetMenuItens();
-            ImprimirOpcao(menUItens);
-            int.TryParse(Console.ReadLine(), out int opc);
-            if (opc == 0 || opc > menUItens.Count + 1)
+            if (opcao == 0 || opcao > GetMenuItens().Count + 1)
             {
-                Console.WriteLine($"Digite números de 1 a {menUItens.Count + 1}");
+                ConsoleColor padrao = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Digite números de 1 a {GetMenuItens().Count + 1}");
                 Console.ReadKey();
                 Console.Clear();
+                Console.ForegroundColor = padrao;
+                TipoDeConsulta();
             }
-            if (opc == 1)
-            {
-                Console.WriteLine("TCHAAUUU");
-            }
+        }
 
-            Executar2(opc);
-            Console.ReadKey();
+        // imprime opcoes de consulta e retorna false se a opcao for nao existente
+        public static bool TipoDeConsulta()
+        {
+            // imprime opcoes do menu e
+            ImprimirOpcoes(GetMenuItens());
+            // solicita uma opcao ao usuario
+            int.TryParse(Console.ReadLine(), out opcao);
+            // numero 1 para fechar aplicativo
+            if (opcao == 1)
+            {
+                return false;
+            }
+            // ao digitar caracter fora das opcoes, pede para digitar novamente
+            DigiteNovamente(opcao);
+            // da sequencia a execucao da opcao selecionada
+            return true;
         }
 
         // lista de itens do menu principal
@@ -84,20 +128,20 @@ namespace ConsoleApp1.Views
             };
         }
 
-        public static void ImprimirOpcao(IList<Menu> menuItens)
+        // imprimir opcoes
+        public static void ImprimirOpcoes(IList<Menu> menuItens)
         {
             int i = 1;
             ConsoleColor f = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.DarkBlue;
-            Console.WriteLine($"\nEai Ruderalis! Agora é {DateTime.Now.ToString("g")}");
-            Console.WriteLine("Qual relatório?");
-            Console.WriteLine("1 - Fechar Janela");
+            Console.WriteLine($"\n  Eai Ruderalis! Agora é {DateTime.Now.ToString("g")}");
+            Console.WriteLine("  Qual relatório?");
+            Console.WriteLine("  1 - Fechar Janela");
             foreach (var menuItem in menuItens)
             {
-                Console.WriteLine((++i).ToString() + " - " + menuItem.Titulo);
+                Console.WriteLine("  " + (++i).ToString() + " - " + menuItem.Titulo);
             }
             Console.ForegroundColor = f;
         }
-
     }
 }

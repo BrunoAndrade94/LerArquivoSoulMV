@@ -1,4 +1,5 @@
-﻿using ConsoleApp1.Menus.Opcoes;
+﻿using ConsoleApp1.Interfaces;
+using ConsoleApp1.Menus.Opcoes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp1.Menus
 {
-    class Menu
+    class Menu : IOpcaoMenu
     {
         public string Titulo { get; set; }
         public Type TipoClasse { get; set; }
@@ -18,6 +19,7 @@ namespace ConsoleApp1.Menus
             TipoClasse = tipoClasse;
         }
 
+        public void Executar() { }
 
     }
 }

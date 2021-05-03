@@ -1,67 +1,91 @@
 ﻿using ConsoleApp1.Entidades;
+using ConsoleApp1.Abstratas;
+using ConsoleApp1.Views;
 using ConsoleApp1.Relatorios;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
+using ConsoleApp1.Excessoes.Relatorio;
 
 namespace ConsoleApp1.Arquivos
 {
-    static class LerArquivo
+    class LerArquivo : AArquivo
     {
-        public static string C_R_POS_EST_S { get; private set; } = (@"G:\Visual_Studio\Documentos Texto\R_POS_EST_S.csv");
-        public static string C_R_LIST_CONS_PAC { get; private set; } = (@"G:\Visual_Studio\Documentos Texto\R_LIST_CONS_PAC.csv");
-        public static string NovoArquivoKitIntubacao { get; private set; } = (@"G:\Visual_Studio\Documentos Texto\Consumo_Kit_Intubacao.csv");
-
-        // ainda nao testei
+        public static string NomeArquivo { get; set; }
         public static List<Produto> Ler(string arquivo)
         {
+            // cria lista de produtos
             List<Produto> listaProduto = new List<Produto>();
-            Escreve_R_POS_EST_S(arquivo, listaProduto);
-            Escreve_R_LIST_CONS_PAC(arquivo, listaProduto);
+            // le relatorio csv
+            LeCSVArquivoRelatorio(arquivo, listaProduto);
             return listaProduto;
         }
 
-        private static string NomeDoArquivo(string arquivo)
+        // retorna o nome do arquivo
+        private static bool VerificaNomeArquivo(string arquivo)
         {
-            FileInfo fd = new FileInfo(arquivo);
-            return fd.Name;
+            var nome = new FileInfo(arquivo).Name;
+            if (R_POS_EST_S.EhMeuNome(nome)) return true;
+            if (R_LIST_CONS_PAC.EhMeuNome(nome)) return true;
+            return false;
         }
 
-        private static List<Produto> Escreve_R_POS_EST_S(string arquivo, List<Produto> listaProduto)
+        // responsavel por ler e gerar listas e lançar excessões caso tenha
+        private static List<Produto> LeCSVArquivoRelatorio(string arquivo, List<Produto> listaProduto)
         {
-            if (R_POS_EST_S.Nome == NomeDoArquivo(arquivo))
+            if (VerificaNomeArquivo(arquivo))
             {
-                FileStream fs = new FileStream(arquivo, FileMode.Open);
-                using (StreamReader ler = new StreamReader(fs))
+                try
                 {
-                    while (!ler.EndOfStream)
+                    using (var fs = new FileStream(arquivo, FileMode.Open, FileAccess.Read))
                     {
-                        R_POS_EST_S.Escrita(ler.ReadLine(), listaProduto);
+                        using (var ler = new StreamReader(fs))
+                        {
+                            while (!ler.EndOfStream)
+                            {
+                                QualArquivo(listaProduto, ler);
+                            }
+                        }
                     }
+                    if (listaProduto.Count == 0) throw new RelatorioException();
+                }
+                catch (FileNotFoundException)
+                {
+                    Console.WriteLine($"\n\n--- ATENÇÃO! Arquivo {NomeArquivo} não encontrado.");
+                    Console.ReadLine();
+                    VMenu.Executar();
+                }
+                catch (IOException)
+                {
+                    Console.WriteLine("\n\n" + $@"--- ATENÇÃO! Arquivo {NomeArquivo} 
+          em uso por outro programa.");
+                    Console.ReadLine();
+                    VMenu.Executar();
+                }
+                catch (RelatorioException)
+                {
+                    Console.WriteLine("\n\n" + @$"ATENÇÃO! Arquivo {LerArquivo.NomeArquivo} não contêm dados
+                    Por favor verifique o arquivo
+                    e tente novamente");
+                    Console.ReadLine();
+                    VMenu.Executar();
                 }
                 return listaProduto;
             }
             return null;
         }
 
-        private static List<Produto> Escreve_R_LIST_CONS_PAC(string arquivo, List<Produto> listaProduto)
+        // responvel por definir o fluxo do programa, qual arquivo direciono?
+        private static void QualArquivo(List<Produto> listaProduto, StreamReader ler)
         {
-            if (R_LIST_CONS_PAC.Nome == NomeDoArquivo(arquivo))
+            if (NomeArquivo == R_POS_EST_S.Nome)
             {
-                FileStream fs = new FileStream(arquivo, FileMode.Open);
-                using (StreamReader ler = new StreamReader(fs))
-                {
-                    while (!ler.EndOfStream)
-                    {
-                        R_LIST_CONS_PAC.Escrita(ler.ReadLine(), listaProduto);
-                    }
-                }
-                return listaProduto;
+                R_POS_EST_S.Escrita(ler.ReadLine(), listaProduto);
             }
-            return null;
+            if (NomeArquivo == R_LIST_CONS_PAC.Nome)
+            {
+                R_LIST_CONS_PAC.Escrita(ler.ReadLine(), listaProduto);
+            }
         }
     }
 }
