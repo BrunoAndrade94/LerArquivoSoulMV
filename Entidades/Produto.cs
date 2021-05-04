@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp1.Entidades
 {
-    class Produto
+    public class Produto
     {
         public int Codigo { get; set; }
         public string Nome { get; set; }

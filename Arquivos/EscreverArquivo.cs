@@ -17,19 +17,34 @@ namespace ConsoleApp1.Arquivos
         // consegue escrever em arquivo .csv
         public static void Escrever<T>(IEnumerable<T> lista)
         {
-            Produto[] p = lista.ToArray() as Produto[];
-            using (StreamWriter sw = File.CreateText(R_CONS_PREV_KIT_COVID))
+            try
             {
-                sw.WriteLine("Codigo;Nome;Consumo Previsto;Saldo Hospital");
-                for (int i = 0; i < p.Length; i++)
+                Produto[] p = lista.ToArray() as Produto[];
+                using (StreamWriter sw = File.CreateText(R_CONS_PREV_KIT_COVID))
                 {
-                    sw.WriteLine($"{p[i].Codigo};" +
-                        $"{p[i].Nome};" +
-                        $"{p[i].ConsumoPrevisto};" +
-                        $"{p[i].SaldoHospital.ToString("F2", CultureInfo.InvariantCulture)}");
-                }
-            } // cria e escreve no arquivo em csv
-            Console.WriteLine("\n\nArquivo R_CONS_PREV_KIT_COVID gerado com sucesso!");
+                    sw.WriteLine("Codigo;Nome;Consumo Previsto;Saldo Hospital");
+                    for (int i = 0; i < p.Length; i++)
+                    {
+                        EscreverProduto(p, sw, i);
+                    }
+                } // cria e escreve no arquivo em csv
+                Console.WriteLine("\n\nArquivo R_CONS_PREV_KIT_COVID gerado com sucesso!");
+            }
+            catch (IOException)
+            {
+                Console.WriteLine("\n\n" + @"--- ATENÇÃO! Arquivo R_CONS_PREV_KIT_COVID
+          em uso por outro programa.");
+                Console.ReadLine();
+                VMenu.Executar();
+            }
+        }
+
+        private static void EscreverProduto(Produto[] p, StreamWriter sw, int i)
+        {
+            sw.WriteLine($"{p[i].Codigo};" +
+                $"{p[i].Nome};" +
+                $"{p[i].ConsumoPrevisto};" +
+                $"{p[i].SaldoHospital.ToString("F2", CultureInfo.InvariantCulture)}");
         }
     }
 }

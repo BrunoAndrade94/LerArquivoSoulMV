@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp1.Excessoes.Relatorio
+namespace ConsoleApp1.Abstratas
 {
-    // nao faço ideia o que isso faz
-    abstract class Verificar
+    // verifica se a lista é valida
+    abstract class AVerificar
     {
         public static bool ListaValida<T>(List<T> NLProduto)
         {

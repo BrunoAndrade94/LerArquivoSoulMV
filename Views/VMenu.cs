@@ -1,84 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
 using ConsoleApp1.Menus;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ConsoleApp1.Telas;
 using ConsoleApp1.Interfaces;
-using System.Threading;
 using ConsoleApp1.Menus.Opcoes;
-using static System.Net.Mime.MediaTypeNames;
+using ConsoleApp1.Arquivos;
+using System.IO;
+using ConsoleApp1.Excessoes.Relatorio;
 
 namespace ConsoleApp1.Views
 {
-    class VMenu/* : IOpcaoMenu*/
+    class VMenu : ConsoleCor
     {
+        // obtem itens do menu
         public static IList<Menu> itensDoMenu = GetMenuItens();
         private static int opcao;
 
+        public static object NomeArquivo { get; private set; }
+
+        // ponto de entrada após a Main(próprio)
         public static void Executar()
         {
-            Console.Clear();
-            // inciando a aplicacao
-            if (TipoDeConsulta())
+            try
             {
-                ExecutarConsulta(opcao);
+                Console.Clear();
+                // inciando a aplicacao
+                if (TipoDeConsulta())
+                {
+                    ExecutarConsulta(opcao);
+                    Executar();
+                }
+                // encerrando a aplicacao
+                else
+                {
+                    Tela.ImprimeEncerramento();
+                    Environment.Exit(0);
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n Erro ao abrir o arquivo {LerArquivo.NomeArquivo} não foi encontrado.\nPor favor verifique o arquivo e tente novamente.");
+                Console.ReadLine();
                 Executar();
             }
-            // encerrando a aplicacao
-            else
+            catch (IOException)
             {
-                ImprimeEncerramento();                
-                Environment.Exit(0);
+                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n Erro ao acessar o arquivo {LerArquivo.NomeArquivo} está em uso por outro programa.\nPor favor verifique o arquivo e tente novamente.");
+                Console.ReadLine();
+                Executar();
             }
-        }
-
-        private static void ImprimeEncerramento()
-        {
-            Console.WriteLine();
-            string titulo = $"  Encerrando.";
-            var espacos = new string('~', 27);
-            Console.WriteLine(espacos);
-            Console.Write(titulo);
-            ImprimeEspera(titulo);
-            Console.WriteLine("\n" + espacos);
-            Thread.Sleep(1000);
-        }
-
-        // imprime um tempo de espera
-        private static void ImprimeEspera(string titulo)
-        {
-            Thread.Sleep(10);
-            for (int i = 0;  i < titulo.Length; i++)
+            catch (RelatorioException)
             {
-                Console.Write('.');
-                Thread.Sleep(60);
+                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n Erro ao ler o arquivo {LerArquivo.NomeArquivo} não contêm dados\nPor favor verifique o arquivo e tente novamente.");
+                Console.ReadLine();
+                Executar();
             }
+            catch (ArgumentOutOfRangeException)
+            {
+                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n Erro ao escrever o arquivo {LerArquivo.NomeArquivo} contêm dados em excesso.\nPor favor verifique o arquivo e tente novamente.");
+                Console.ReadLine();
+                Executar();
+            }
+            
         }
-
-        // imprime opcao selecionada
-        private static void ImprimeOpcaoSelecionada(Menu itemCapturado)
-        {
-            Console.WriteLine();
-            string titulo = $" Executando..: {itemCapturado.Titulo} ";
-            string aguarde = $"Aguarde!";
-            Console.WriteLine(new string('~', titulo.Length));
-            Console.WriteLine(titulo, aguarde);
-            Console.WriteLine(new string('~', titulo.Length));
-            ImprimeEspera(titulo);
-        }
-
+        
         // executar consulta
         public static void ExecutarConsulta(int opcao)
         {
             // selecionar o item do menu
-            IOpcaoMenu itemSelecionado; // pode tirar essa linha
             Menu itemCapturado = itensDoMenu[opcao - 2];
             Type tipoClasse = itemCapturado.TipoClasse;
-            itemSelecionado = Activator.CreateInstance(tipoClasse) as IOpcaoMenu;
+            IOpcaoMenu itemSelecionado = Activator.CreateInstance(tipoClasse) as IOpcaoMenu;
 
             // imprime opcao selecionada
-            ImprimeOpcaoSelecionada(itemCapturado);
+            Tela.ImprimeOpcaoSelecionada(itemCapturado);
 
             itemSelecionado.Executar();
             Console.WriteLine("\n\nTecle algo para continuar...".ToUpper());
@@ -91,12 +86,9 @@ namespace ConsoleApp1.Views
         {
             if (opcao == 0 || opcao > GetMenuItens().Count + 1)
             {
-                ConsoleColor padrao = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Digite números de 1 a {GetMenuItens().Count + 1}");
-                Console.ReadKey();
-                Console.Clear();
-                Console.ForegroundColor = padrao;
+                FonteVermelha();
+                Tela.ImprimeSeDigitarOpcaoErrada();
+                FonteBranca();
                 TipoDeConsulta();
             }
         }
@@ -105,18 +97,18 @@ namespace ConsoleApp1.Views
         public static bool TipoDeConsulta()
         {
             // imprime opcoes do menu e
-            ImprimirOpcoes(GetMenuItens());
+            Tela.QuaisOpcoes(GetMenuItens());
             // solicita uma opcao ao usuario
             int.TryParse(Console.ReadLine(), out opcao);
             // numero 1 para fechar aplicativo
-            if (opcao == 1)
+            if (opcao != 1)
             {
-                return false;
+                // ao digitar caracter fora das opcoes, pede para digitar novamente
+                DigiteNovamente(opcao);
+                // da sequencia a execucao da opcao selecionada
+                return true;
             }
-            // ao digitar caracter fora das opcoes, pede para digitar novamente
-            DigiteNovamente(opcao);
-            // da sequencia a execucao da opcao selecionada
-            return true;
+            return false;
         }
 
         // lista de itens do menu principal
@@ -124,24 +116,9 @@ namespace ConsoleApp1.Views
         {
             return new List<Menu>
             {
-                new Menu("Consumo Kit COVID-19", typeof(ConsumoKitCovid))
+                new Menu("Consumo Kit COVID-19", typeof(R_CONS_PREV_KIT_COVID))
             };
         }
 
-        // imprimir opcoes
-        public static void ImprimirOpcoes(IList<Menu> menuItens)
-        {
-            int i = 1;
-            ConsoleColor f = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.DarkBlue;
-            Console.WriteLine($"\n  Eai Ruderalis! Agora é {DateTime.Now.ToString("g")}");
-            Console.WriteLine("  Qual relatório?");
-            Console.WriteLine("  1 - Fechar Janela");
-            foreach (var menuItem in menuItens)
-            {
-                Console.WriteLine("  " + (++i).ToString() + " - " + menuItem.Titulo);
-            }
-            Console.ForegroundColor = f;
-        }
     }
 }

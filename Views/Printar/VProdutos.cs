@@ -8,7 +8,7 @@ namespace ConsoleApp1.Views.Printar
 {
     class VProdutos
     {
-        public static void PrintaProdutos<T>(string mensagem, IEnumerable<T> lista)
+        public static void ImprimePrintaProdutos<T>(string mensagem, IEnumerable<T> lista)
         {
             Console.WriteLine(mensagem);
             Console.WriteLine();

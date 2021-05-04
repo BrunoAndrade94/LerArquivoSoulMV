@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ConsoleApp1.Entidades;
-using ConsoleApp1.Excessoes;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ConsoleApp1.Excessoes.Relatorio;
-using ConsoleApp1.Interfaces;
+using ConsoleApp1.Abstratas;
 using ConsoleApp1.Arquivos;
+using System;
 
 namespace ConsoleApp1.Relatorios
 {
@@ -17,7 +12,13 @@ namespace ConsoleApp1.Relatorios
 
         public static void Escrita(string arquivo, List<Produto> listaProduto)
         {
-            Verificar.ListaValida(listaProduto);
+            AVerificar.ListaValida(listaProduto);
+            Le_R_LIST_CONS_PAC(arquivo, listaProduto);
+        }
+        
+        // le e adicionar produtos a lista
+        private static void Le_R_LIST_CONS_PAC(string arquivo, List<Produto> listaProduto)
+        {
             string[] vetor = arquivo.Split(';', '"');
             if (vetor.Length == 3 && vetor[2] == "")
             {
@@ -55,6 +56,7 @@ namespace ConsoleApp1.Relatorios
             }
         }
 
+        // verifica o nome do arquivo e armazena
         public static bool EhMeuNome(string nome)
         {
             LerArquivo.NomeArquivo = nome;
