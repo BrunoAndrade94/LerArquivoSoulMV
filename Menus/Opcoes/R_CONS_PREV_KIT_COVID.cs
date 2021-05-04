@@ -3,6 +3,9 @@ using ConsoleApp1.Arquivos;
 using System;
 using System.Collections.Generic;
 using ConsoleApp1.Entidades;
+using ConsoleApp1.Excessoes.Relatorio;
+using System.Collections;
+using System.Linq;
 
 namespace ConsoleApp1.Menus.Opcoes
 {
@@ -10,9 +13,31 @@ namespace ConsoleApp1.Menus.Opcoes
     {
         // lista com codigo dos medicamentos do kit intubação
         // lista errada , alterar
-        private static HashSet<int> ListaMedicKitIntubacao = new HashSet<int> { 55051, 55478, 54544, 54930, 55148, 55385, 55441, 55495, 55610, 55791 };
+        private static HashSet<int> ListaKI = new HashSet<int> {
+            55051, 55478, 54544, 56487,
+            54930, 55148, 55385, 55441,
+            55495, 55610, 55791, 64164 };
 
-        // ponto de entrada
+        //private static HashSet<int> ListaKI = GetCodigoKI();       
+        //private static HashSet<int> GetCodigoKI()
+        //{
+
+        //    ListaKI.Add(55051);
+        //    ListaKI.Add(55478);
+        //    ListaKI.Add(54544);
+        //    ListaKI.Add(56487);
+        //    ListaKI.Add(54930);
+        //    ListaKI.Add(55148);
+        //    ListaKI.Add(55385);
+        //    ListaKI.Add(55441);
+        //    ListaKI.Add(55495);
+        //    ListaKI.Add(55610);
+        //    ListaKI.Add(55791);
+        //    ListaKI.Add(64164);
+        //    return ListaKI;
+        //}
+
+        // ponto de entrada chamada pela Main()
         // implementar codigo para gerar relatorio consumo kit covid
         public void Executar()
         {
@@ -39,77 +64,70 @@ namespace ConsoleApp1.Menus.Opcoes
             var listaTempoUso = new List<Produto>();
             var listaSaldo2 = new List<Produto>();
             var listaConsumo2 = new List<Produto>();
-            // 0 até tamanho da lista de consumo
+
+            RelatorioException.SeEhListaVazia(listaSaldo);
+            RelatorioException.SeEhListaVazia(listaConsumo);
             try
-            {
-                // ainda falta arrumar
-                for (int i = 0; i < listaSaldo.Count; i++)
+            {   // primeira filtragem, gerando lista com medicamentos kit intubação
+                foreach (var produtoSaldo in listaSaldo)
                 {
-                    if (ListaMedicKitIntubacao.Contains(listaSaldo[i].Codigo))
+                    if (ListaKI.Contains(produtoSaldo.Codigo))
                     {
-                        listaSaldo2.Add(new Produto()
+                        foreach (var produtoConsumo in listaConsumo)
                         {
-                            Codigo = listaSaldo[i].Codigo,
-                            Nome = listaSaldo[i].Nome,
-                            SaldoHospital = listaSaldo[i].SaldoHospital
-                        });
+                            if (ListaKI.Contains(produtoConsumo.Codigo))
+                            {
+                                if (produtoSaldo.Codigo == produtoConsumo.Codigo)
+                                {
+                                    ListaKI.Remove(produtoSaldo.Codigo);
+                                    AddProdComConsumo(listaTempoUso, produtoSaldo, produtoConsumo);
+                                }
+                            }
+                        }
                     }
                 }
-                // 0 até tamanho da lista de saldo
-                for (int j = 0; j < listaConsumo.Count; j++)
+
+                foreach (var produtoSaldo in listaSaldo)
                 {
-                    if (ListaMedicKitIntubacao.Contains(listaConsumo[j].Codigo))
+                    if(ListaKI.Contains(produtoSaldo.Codigo))
                     {
-                        listaConsumo2.Add(new Produto()
-                        {
-                            Codigo = listaConsumo[j].Codigo,
-                            Nome = listaConsumo[j].Nome,
-                            Consumo = listaConsumo[j].Consumo
-                        });
+                        AddProdSemConsumo(listaTempoUso, produtoSaldo);
                     }
                 }
-                for (int i = 0; i < listaSaldo2.Count; i++)
-                {
-                    if (listaSaldo2[i].Codigo == listaConsumo2[i].Codigo)
-                    {
-                        listaConsumo2.Add(new Produto()
-                        {
-                            Codigo = listaConsumo[i].Codigo,
-                            Nome = listaConsumo[i].Nome,
-                            ConsumoPrevisto = listaSaldo2[i].SaldoHospital / listaConsumo[i].Consumo,
-                            SaldoHospital = listaSaldo2[i].SaldoHospital
-                        });
-                    }
-                }
-                // verifica o codigo do medicamentos kit intubacao
-                //if (listaSaldo[i].Codigo == listaConsumo[j].Codigo)
-                //{
-                //    // add produto kit intubacao na lista
-                //    if (ListaMedicKitIntubacao.Contains(listaSaldo[i].Codigo))
-                //    {
-                //        AdicionarNaLista(listaSaldo, listaConsumo, listaTempoUso, i, j);
-                //    }
-
-                //}
-
-
             }
             catch (Exception) { }
-
-
-
-
-// retorna a lista de produtos
-return listaTempoUso;
+            return listaTempoUso;
         }
 
-        private static void AdicionarNaLista(List<Produto> listaSaldo, List<Produto> listaConsumo, List<Produto> listaTempoUso, int i, int j)
-{
-    listaTempoUso.Add(new Produto(
-      Produto.Construto(listaConsumo[i].Codigo,
-      listaConsumo[i].Nome,
-      Math.Round(listaSaldo[i].SaldoHospital / listaConsumo[j].Consumo + 0),
-      listaSaldo[i].SaldoHospital)));
-}
+        private static void AddProdSemConsumo(List<Produto> listaTempoUso, Produto produtoSaldo)
+        {
+            listaTempoUso.Add(new Produto()
+            {
+                Codigo = produtoSaldo.Codigo,
+                Nome = produtoSaldo.Nome,
+                ConsumoPrevisto = 0,
+                SaldoHospital = produtoSaldo.SaldoHospital
+            });
+        }
+
+        private static void AddProdComConsumo(List<Produto> listaTempoUso, Produto produtoSaldo, Produto produtoConsumo)
+        {
+            listaTempoUso.Add(new Produto()
+            {
+                Codigo = produtoSaldo.Codigo,
+                Nome = produtoSaldo.Nome,
+                ConsumoPrevisto = Math.Round(produtoSaldo.SaldoHospital / produtoConsumo.Consumo),
+                SaldoHospital = produtoSaldo.SaldoHospital
+            });
+        }
+
+        //private static void AdicionarNaLista(List<Produto> listaSaldo, List<Produto> listaConsumo, List<Produto> listaTempoUso, int i, int j)
+        //{
+        //    listaTempoUso.Add(new Produto(
+        //      Produto.Construto(listaConsumo[i].Codigo,
+        //      listaConsumo[i].Nome,
+        //      Math.Round(listaSaldo[i].SaldoHospital / listaConsumo[j].Consumo + 0),
+        //      listaSaldo[i].SaldoHospital)));
+        //}
     }
 }

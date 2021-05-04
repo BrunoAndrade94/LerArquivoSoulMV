@@ -53,6 +53,29 @@ namespace ConsoleApp1.Relatorios
                 });
                 return;
             }
+            if (vetor.Length == 23)
+            {
+                string[] vet1 = vetor[1].Split('-');
+                string[] vet2 = vet1[1].Split(',');
+                listaProduto.Add(new Produto()
+                {
+                    Codigo = int.Parse(vet1[0].Trim(',')),
+                    Unidade = vet2[2].ToLower(),
+                    Nome = vet2[0].Trim().ToLower(),
+                    SaldoHospital = double.Parse(vetor[3])
+                });
+            }
+            if (vetor.Length == 31)
+            {
+                string[] vet1 = vetor[3].Split('-');
+                listaProduto.Add(new Produto()
+                {
+                    Codigo = int.Parse(vet1[0]),
+                    Unidade = vetor[7].ToLower(),
+                    Nome = vet1[1].Trim().ToLower(),
+                    SaldoHospital = double.Parse(vetor[11])
+                });
+            }
         }
 
         public static bool EhMeuNome(string nome)

@@ -39,25 +39,28 @@ namespace ConsoleApp1.Views
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n Erro ao abrir o arquivo {LerArquivo.NomeArquivo} não foi encontrado.\nPor favor verifique o arquivo e tente novamente.");
+                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n  Erro ao abrir. O arquivo {LerArquivo.NomeArquivo}" +
+                    $" não foi encontrado.\n  Por favor verifique o arquivo e tente novamente.");
                 Console.ReadLine();
                 Executar();
             }
             catch (IOException)
             {
-                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n Erro ao acessar o arquivo {LerArquivo.NomeArquivo} está em uso por outro programa.\nPor favor verifique o arquivo e tente novamente.");
+                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n  Erro ao acessar. O arquivo {LerArquivo.NomeArquivo}" +
+                    $" está em uso por outro programa.\n  Por favor verifique o arquivo e tente novamente.");
                 Console.ReadLine();
                 Executar();
             }
-            catch (RelatorioException)
+            catch (RelatorioException e)
             {
-                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n Erro ao ler o arquivo {LerArquivo.NomeArquivo} não contêm dados\nPor favor verifique o arquivo e tente novamente.");
+                Console.WriteLine(e.Message);
                 Console.ReadLine();
                 Executar();
             }
             catch (ArgumentOutOfRangeException)
             {
-                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n Erro ao escrever o arquivo {LerArquivo.NomeArquivo} contêm dados em excesso.\nPor favor verifique o arquivo e tente novamente.");
+                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n  Erro ao escrever o arquivo {LerArquivo.NomeArquivo}" +
+                    $" contêm dados em excesso.\n   Por favor verifique o arquivo e tente novamente.");
                 Console.ReadLine();
                 Executar();
             }

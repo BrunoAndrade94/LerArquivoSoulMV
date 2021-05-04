@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ConsoleApp1.Excessoes.Relatorio;
 
 namespace ConsoleApp1.Arquivos
 {
@@ -20,6 +19,9 @@ namespace ConsoleApp1.Arquivos
             try
             {
                 Produto[] p = lista.ToArray() as Produto[];
+
+                // verifica se é lista é vazia
+                RelatorioException.SeEhListaVazia(lista);
                 using (StreamWriter sw = File.CreateText(R_CONS_PREV_KIT_COVID))
                 {
                     sw.WriteLine("Codigo;Nome;Consumo Previsto;Saldo Hospital");

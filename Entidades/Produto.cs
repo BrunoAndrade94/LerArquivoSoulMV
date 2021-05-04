@@ -61,9 +61,14 @@ namespace ConsoleApp1.Entidades
             Consumo = consumo;
         }
 
+        //public override bool Equals(object obj)
+        //{
+        //    return this.Codigo obj;
+        //}
+
         public override string ToString()
         {
-            return $@"{Codigo, -7} {Nome, -20} {Unidade, -9} {Lote, -10} {Validade.ToString("d"), -10} {SaldoHospital, -8} {ConsumoPrevisto, -8}";
+            return $@"{Codigo, -7} {Nome, -20} {Unidade, -9} {Lote, -10} {Validade = DateTime.Now} {SaldoHospital, -8} {ConsumoPrevisto, -8}";
         }
     }
 }
