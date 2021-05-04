@@ -17,7 +17,7 @@ namespace ConsoleApp1.Telas
 
         public static void FonteBranca()
         {
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.White; 
         }
 
         public static void FonteAzulDark()

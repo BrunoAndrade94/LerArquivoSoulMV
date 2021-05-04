@@ -44,7 +44,8 @@ namespace ConsoleApp1.Entidades
             {
                 Codigo = codigo,
                 Nome = nome,
-                ConsumoPrevisto = double.Parse(consumoPrevisto.ToString("F2")),
+                // se vier vazio, padrao é zero
+                ConsumoPrevisto = /*0.0 + */double.Parse(consumoPrevisto.ToString("F2")),
                 SaldoHospital = double.Parse(saldoHospital.ToString("F2"))
             };
             return prod;

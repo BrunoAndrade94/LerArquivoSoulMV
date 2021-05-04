@@ -15,7 +15,7 @@ namespace ConsoleApp1.Relatorios
             AVerificar.ListaValida(listaProduto);
             Le_R_LIST_CONS_PAC(arquivo, listaProduto);
         }
-        
+
         // le e adicionar produtos a lista
         private static void Le_R_LIST_CONS_PAC(string arquivo, List<Produto> listaProduto)
         {
