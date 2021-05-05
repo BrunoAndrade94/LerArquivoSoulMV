@@ -7,6 +7,7 @@ using ConsoleApp1.Excessoes.Relatorio;
 using System.Collections;
 using System.Linq;
 using ConsoleApp1.Views;
+using ConsoleApp1.Telas;
 
 namespace ConsoleApp1.Menus.Opcoes
 {
@@ -36,11 +37,13 @@ namespace ConsoleApp1.Menus.Opcoes
             // gerar lista consumoPrevisto
             var consumoPrevisto = TempoDeUso(posicaoSaldo, consumoPaciente);
             
+            // ordena pelo codigo do produto
             consumoPrevisto.Sort();
             
             // gerar arquivo consumoPrevisto
             EscreverArquivo.Escrever(consumoPrevisto);
-            //ImprimePrintaProdutos(consumoPrevisto);
+            
+            Tela.Imprime_R_CONS_PREV_KIT_COVID(consumoPrevisto);
         }
 
         // cria nova lista com os medicamentos do kit intubacao com consumo previsto
@@ -61,6 +64,10 @@ namespace ConsoleApp1.Menus.Opcoes
                 Console.WriteLine(e.Message);
                 Console.ReadKey();
                 VMenu.Executar();
+            }
+            finally // realocar a lista novamente
+            {
+                ListaKI = GetListaKI();
             }
             return listaTempoUso;
         }

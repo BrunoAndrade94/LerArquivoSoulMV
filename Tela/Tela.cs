@@ -1,17 +1,36 @@
-﻿using ConsoleApp1.Menus;
+﻿using ConsoleApp1.Entidades;
+using ConsoleApp1.Menus;
 using ConsoleApp1.Views;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 
 namespace ConsoleApp1.Telas
 {
     abstract class Tela : ConsoleCor
     {
-        public static void ImprimePrintaProdutos<T>(IEnumerable<T> lista)
+        public static void Imprime_R_CONS_PREV_KIT_COVID<T>(IEnumerable<T> lista)
         {
             Console.WriteLine();
-            foreach (T objeto in lista) Console.WriteLine(objeto);
+            var prod = lista as List<Produto>;
+
+            var cabecalho = ($"{"Codigo",-10}" +
+                             $"{"Nome",-50}" +
+                             $"{"Consumo Previsto",-18}" +
+                             $"{"Saldo Hospital", -18}" +
+                             $"{"Consumo",-10}");
+            Console.WriteLine(cabecalho);
+            Console.WriteLine(new string('=', cabecalho.Length));
+
+            foreach (var obj in prod)
+            {
+                Console.WriteLine($"{obj.Codigo,-10}" +
+                              $"{obj.Nome,-50}" +
+                              $"{obj.ConsumoPrevisto,-18}" +
+                              $"{obj.SaldoHospital.ToString("F0"),-18}" +
+                              $"{obj.Consumo.ToString("F0"),-10}");
+            }
         }
 
         public static void ImprimeEncerramento()

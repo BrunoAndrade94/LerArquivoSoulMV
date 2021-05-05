@@ -3,10 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <ApplicationIcon></ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Enumerados\" />
+    <Compile Remove="Enumerados\**" />
+    <EmbeddedResource Remove="Enumerados\**" />
+    <None Remove="Enumerados\**" />
   </ItemGroup>
 
 </Project>

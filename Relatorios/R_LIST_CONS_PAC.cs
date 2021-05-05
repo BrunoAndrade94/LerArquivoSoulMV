@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ConsoleApp1.Abstratas;
 using ConsoleApp1.Arquivos;
 using ConsoleApp1.Entidades;
+using ConsoleApp1.Excessoes.Relatorio;
 using ConsoleApp1.Interfaces;
+using ConsoleApp1.Views;
 
 namespace ConsoleApp1.Relatorios
 {
-     static class R_LIST_CONS_PAC
-     {
+    static class R_LIST_CONS_PAC
+    {
         public static string Nome { get; private set; } = "R_LIST_CONS_PAC.csv";
 
         public static void Escrita(string arquivo, List<Produto> listaProduto)
@@ -40,7 +43,7 @@ namespace ConsoleApp1.Relatorios
             if (vetor.Length == 7)
             {
                 // uma linha especifica
-                if(vetor[2] == ",")
+                if (vetor[2] == ",")
                 {
                     listaProduto.Add(new Produto()
                     {
@@ -88,7 +91,6 @@ namespace ConsoleApp1.Relatorios
                 });
                 return;
             }
-
         }
 
         // verifica o nome do arquivo e armazena

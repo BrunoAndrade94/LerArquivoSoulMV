@@ -79,8 +79,8 @@ namespace ConsoleApp1.Views
             Tela.ImprimeOpcaoSelecionada(itemCapturado);
 
             itemSelecionado.Executar();
-            Console.WriteLine("\n\nTecle algo para continuar...".ToUpper());
-            Console.ReadLine();
+            Console.WriteLine("\n\nTecle algo para continuar...");
+            Console.ReadKey();
             //return itemSelecionado;
         }
 

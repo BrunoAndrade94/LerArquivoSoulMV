@@ -59,9 +59,7 @@ namespace ConsoleApp1.Entidades
             Nome = nome;
             Unidade = unidade;
             Consumo = consumo;
-        }
-
-        
+        }        
 
         public override string ToString()
         {
