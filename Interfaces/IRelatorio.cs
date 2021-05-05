@@ -6,5 +6,7 @@ namespace ConsoleApp1.Interfaces
     {
         //string Nome { get; set; }
         public static void Executar() { }
+
+
     }
 }

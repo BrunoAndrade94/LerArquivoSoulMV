@@ -6,39 +6,25 @@ using ConsoleApp1.Entidades;
 using ConsoleApp1.Excessoes.Relatorio;
 using System.Collections;
 using System.Linq;
+using ConsoleApp1.Views;
 
 namespace ConsoleApp1.Menus.Opcoes
 {
     public class R_CONS_PREV_KIT_COVID : IOpcaoMenu
     {
         // lista com codigo dos medicamentos do kit intubação
-        // lista errada , alterar
-        private static HashSet<int> ListaKI = new HashSet<int> {
+        private static HashSet<int> ListaKI = GetListaKI();
+
+        private static HashSet<int> GetListaKI()
+        {
+            // medicamentos do kit intubação
+            return new HashSet<int> {
             55051, 55478, 54544, 56487,
             54930, 55148, 55385, 55441,
             55495, 55610, 55791, 64164 };
-
-        //private static HashSet<int> ListaKI = GetCodigoKI();       
-        //private static HashSet<int> GetCodigoKI()
-        //{
-
-        //    ListaKI.Add(55051);
-        //    ListaKI.Add(55478);
-        //    ListaKI.Add(54544);
-        //    ListaKI.Add(56487);
-        //    ListaKI.Add(54930);
-        //    ListaKI.Add(55148);
-        //    ListaKI.Add(55385);
-        //    ListaKI.Add(55441);
-        //    ListaKI.Add(55495);
-        //    ListaKI.Add(55610);
-        //    ListaKI.Add(55791);
-        //    ListaKI.Add(64164);
-        //    return ListaKI;
-        //}
+        }
 
         // ponto de entrada chamada pela Main()
-        // implementar codigo para gerar relatorio consumo kit covid
         public void Executar()
         {
             // le arquivo e grava posicaoSaldo
@@ -49,7 +35,9 @@ namespace ConsoleApp1.Menus.Opcoes
 
             // gerar lista consumoPrevisto
             var consumoPrevisto = TempoDeUso(posicaoSaldo, consumoPaciente);
-
+            
+            consumoPrevisto.Sort();
+            
             // gerar arquivo consumoPrevisto
             EscreverArquivo.Escrever(consumoPrevisto);
             //ImprimePrintaProdutos(consumoPrevisto);
@@ -58,47 +46,62 @@ namespace ConsoleApp1.Menus.Opcoes
         // cria nova lista com os medicamentos do kit intubacao com consumo previsto
         public static List<Produto> TempoDeUso(List<Produto> listaSaldo, List<Produto> listaConsumo)
         {
-            // refazer esse trecho, relatorio gerado com erros
-
             // cria nova lista de produtos
             var listaTempoUso = new List<Produto>();
-            var listaSaldo2 = new List<Produto>();
-            var listaConsumo2 = new List<Produto>();
-
+            // verifica se a lista está vazia
             RelatorioException.SeEhListaVazia(listaSaldo);
             RelatorioException.SeEhListaVazia(listaConsumo);
             try
-            {   // primeira filtragem, gerando lista com medicamentos kit intubação
-                foreach (var produtoSaldo in listaSaldo)
+            {
+                AddProdSaldoEConsumo(listaSaldo, listaConsumo, listaTempoUso);
+                AddProdApenasSaldo(listaSaldo, listaTempoUso);
+            }
+            catch (RelatorioException e) 
+            {
+                Console.WriteLine(e.Message);
+                Console.ReadKey();
+                VMenu.Executar();
+            }
+            return listaTempoUso;
+        }
+
+        // adiciona produtos que nao tiveram consumo
+        private static void AddProdApenasSaldo(List<Produto> listaSaldo, List<Produto> listaTempoUso)
+        {
+            foreach (var produtoSaldo in listaSaldo)
+            {   // verifica se contem o produto na lista
+                // que nao foi removido da filtragem anterior
+                if (ListaKI.Contains(produtoSaldo.Codigo))
                 {
-                    if (ListaKI.Contains(produtoSaldo.Codigo))
-                    {
-                        foreach (var produtoConsumo in listaConsumo)
-                        {
-                            if (ListaKI.Contains(produtoConsumo.Codigo))
-                            {
-                                if (produtoSaldo.Codigo == produtoConsumo.Codigo)
-                                {
-                                    ListaKI.Remove(produtoSaldo.Codigo);
-                                    AddProdComConsumo(listaTempoUso, produtoSaldo, produtoConsumo);
-                                }
+                    AddProdSemConsumo(listaTempoUso, produtoSaldo);
+                }
+            }
+        }
+
+        // adiciona produtos que tiveram consumo
+        private static void AddProdSaldoEConsumo(List<Produto> listaSaldo, List<Produto> listaConsumo, List<Produto> listaTempoUso)
+        {
+            foreach (var produtoSaldo in listaSaldo)
+            {   //verifica se o codigo contem na lista de saldo
+                if (ListaKI.Contains(produtoSaldo.Codigo))
+                {   // percorre a lista de consumo
+                    foreach (var produtoConsumo in listaConsumo)
+                    {   // verifica se o codigo contem na lista de saldo
+                        if (ListaKI.Contains(produtoConsumo.Codigo))
+                        {   // verifica se os produtos sao os mesmo nas duas listas
+                            if (produtoSaldo.Codigo == produtoConsumo.Codigo)
+                            {   // remove da lista o codigo encontrado
+                                ListaKI.Remove(produtoSaldo.Codigo);
+                                // adiciona produto na lista de tempo de uso
+                                AddProdComConsumo(listaTempoUso, produtoSaldo, produtoConsumo);
                             }
                         }
                     }
                 }
-
-                foreach (var produtoSaldo in listaSaldo)
-                {
-                    if(ListaKI.Contains(produtoSaldo.Codigo))
-                    {
-                        AddProdSemConsumo(listaTempoUso, produtoSaldo);
-                    }
-                }
             }
-            catch (Exception) { }
-            return listaTempoUso;
         }
 
+        // adiciona no arquivo produto que nao teve consumo
         private static void AddProdSemConsumo(List<Produto> listaTempoUso, Produto produtoSaldo)
         {
             listaTempoUso.Add(new Produto()
@@ -106,28 +109,38 @@ namespace ConsoleApp1.Menus.Opcoes
                 Codigo = produtoSaldo.Codigo,
                 Nome = produtoSaldo.Nome,
                 ConsumoPrevisto = 0,
-                SaldoHospital = produtoSaldo.SaldoHospital
+                SaldoHospital = produtoSaldo.SaldoHospital,
+                Consumo = 0
             });
         }
 
+        // adiciona no arquivo produto que teve consumo
         private static void AddProdComConsumo(List<Produto> listaTempoUso, Produto produtoSaldo, Produto produtoConsumo)
         {
-            listaTempoUso.Add(new Produto()
+            // se o consumo for menor que um mes, ira escrever no arquivo (-1)
+            if (Math.Round(produtoSaldo.SaldoHospital / produtoConsumo.Consumo) == 0)
             {
-                Codigo = produtoSaldo.Codigo,
-                Nome = produtoSaldo.Nome,
-                ConsumoPrevisto = Math.Round(produtoSaldo.SaldoHospital / produtoConsumo.Consumo),
-                SaldoHospital = produtoSaldo.SaldoHospital
-            });
+                listaTempoUso.Add(new Produto()
+                {
+                    Codigo = produtoSaldo.Codigo,
+                    Nome = produtoSaldo.Nome,
+                    ConsumoPrevisto = -1,
+                    SaldoHospital = produtoSaldo.SaldoHospital,
+                    Consumo = produtoConsumo.Consumo
+                });
+            }
+            // se o consumo for acima de um mes, ira escrever no arquivo o consumo
+            else
+            {
+                listaTempoUso.Add(new Produto()
+                {
+                    Codigo = produtoSaldo.Codigo,
+                    Nome = produtoSaldo.Nome,
+                    ConsumoPrevisto = Math.Round(produtoSaldo.SaldoHospital / produtoConsumo.Consumo),
+                    SaldoHospital = produtoSaldo.SaldoHospital,
+                    Consumo = produtoConsumo.Consumo
+                });
+            }
         }
-
-        //private static void AdicionarNaLista(List<Produto> listaSaldo, List<Produto> listaConsumo, List<Produto> listaTempoUso, int i, int j)
-        //{
-        //    listaTempoUso.Add(new Produto(
-        //      Produto.Construto(listaConsumo[i].Codigo,
-        //      listaConsumo[i].Nome,
-        //      Math.Round(listaSaldo[i].SaldoHospital / listaConsumo[j].Consumo + 0),
-        //      listaSaldo[i].SaldoHospital)));
-        //}
     }
 }

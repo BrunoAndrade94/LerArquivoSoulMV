@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp1.Entidades
 {
-    public class Produto
+    public class Produto : IComparable
     {
         public int Codigo { get; set; }
         public string Nome { get; set; }
@@ -61,14 +61,19 @@ namespace ConsoleApp1.Entidades
             Consumo = consumo;
         }
 
-        //public override bool Equals(object obj)
-        //{
-        //    return this.Codigo obj;
-        //}
+        
 
         public override string ToString()
         {
-            return $@"{Codigo, -7} {Nome, -20} {Unidade, -9} {Lote, -10} {Validade = DateTime.Now} {SaldoHospital, -8} {ConsumoPrevisto, -8}";
+            return $"{Codigo} {Nome} {Unidade} {Lote} " +
+                $"{Validade = DateTime.Now} {SaldoHospital} " +
+                $"{ConsumoPrevisto} {Consumo}";
+        }
+
+        public int CompareTo(object obj)
+        {
+            var outro = obj as Produto;
+            return Codigo.CompareTo(outro.Codigo);
         }
     }
 }

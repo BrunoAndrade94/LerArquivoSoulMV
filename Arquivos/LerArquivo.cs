@@ -10,7 +10,7 @@ using ConsoleApp1.Interfaces;
 namespace ConsoleApp1.Arquivos
 {
     // erda de Abstract Arquivo que define o caminho do arquivo em pre compilação
-    class LerArquivo : AArquivo
+    class LerArquivo : ADiretorioArquivos
     {
         // armazena o nome do arquivo para verificar posteriormente
         public static string NomeArquivo { get; set; }

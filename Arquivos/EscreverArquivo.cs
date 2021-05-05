@@ -11,42 +11,47 @@ using ConsoleApp1.Excessoes.Relatorio;
 
 namespace ConsoleApp1.Arquivos
 {
-    class EscreverArquivo : AArquivo
+    class EscreverArquivo : ADiretorioArquivos
     {
         // consegue escrever em arquivo .csv
         public static void Escrever<T>(IEnumerable<T> lista)
         {
             try
             {
-                Produto[] p = lista.ToArray() as Produto[];
-
-                // verifica se é lista é vazia
+                Produto[] listaProduto = lista.ToArray() as Produto[];
                 RelatorioException.SeEhListaVazia(lista);
-                using (StreamWriter sw = File.CreateText(R_CONS_PREV_KIT_COVID))
-                {
-                    sw.WriteLine("Codigo;Nome;Consumo Previsto;Saldo Hospital");
-                    for (int i = 0; i < p.Length; i++)
-                    {
-                        EscreverProduto(p, sw, i);
-                    }
-                } // cria e escreve no arquivo em csv
+                EscreveR_CONS_PREV_KIT_COVID(listaProduto);
                 Console.WriteLine("\n\nArquivo R_CONS_PREV_KIT_COVID gerado com sucesso!");
             }
             catch (IOException)
             {
-                Console.WriteLine("\n\n" + @"--- ATENÇÃO! Arquivo R_CONS_PREV_KIT_COVID
-          em uso por outro programa.");
+                Console.WriteLine("\n\n--- ATENÇÃO!\n Erro ao escrever\n O arquivo R_CONS_PREV_KIT_COVID está em uso por outro programa.");
                 Console.ReadLine();
                 VMenu.Executar();
             }
         }
 
-        private static void EscreverProduto(Produto[] p, StreamWriter sw, int i)
+        private static void EscreveR_CONS_PREV_KIT_COVID(Produto[] listaProduto)
         {
-            sw.WriteLine($"{p[i].Codigo};" +
-                $"{p[i].Nome};" +
-                $"{p[i].ConsumoPrevisto};" +
-                $"{p[i].SaldoHospital.ToString("F2", CultureInfo.InvariantCulture)}");
+            using (StreamWriter sw = File.CreateText(R_CONS_PREV_KIT_COVID))
+            {
+                sw.WriteLine("Codigo;Nome;Consumo Previsto;Saldo Hospital;Consumo");
+                for (int i = 0; i < listaProduto.Length; i++)
+                {
+                    EscreverProduto(listaProduto, sw, i);
+                }
+            } // cria e escreve no arquivo em csv
+        }
+
+        // recebe os dados dos produtos e escreve no arquivo
+        private static void EscreverProduto(Produto[] listaProduto, StreamWriter sw, int i)
+        {
+            sw.WriteLine(
+                $"{listaProduto[i].Codigo};" +
+                $"{listaProduto[i].Nome};" +
+                $"{listaProduto[i].ConsumoPrevisto};" +
+                $"{listaProduto[i].SaldoHospital.ToString("F0", CultureInfo.GetCultureInfo("pt-BR"))};" +
+                $"{listaProduto[i].Consumo.ToString("F0", CultureInfo.GetCultureInfo("pt-BR"))}");
         }
     }
 }

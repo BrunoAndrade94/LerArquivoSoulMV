@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ConsoleApp1.Abstratas
 {
     // classe com caminho dos arquivos
-    abstract class AArquivo
+    abstract class ADiretorioArquivos
     {
 
 #if (DEBUG) // diretório em modo DEBUG

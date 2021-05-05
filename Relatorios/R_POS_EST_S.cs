@@ -65,6 +65,17 @@ namespace ConsoleApp1.Relatorios
                     SaldoHospital = double.Parse(vetor[3])
                 });
             }
+            if (vetor.Length == 27)
+            {
+                string[] vet1 = vetor[3].Split('-');
+                listaProduto.Add(new Produto()
+                {
+                    Codigo = int.Parse(vet1[0].Trim()),
+                    Nome = vet1[1].Trim().ToLower(),
+                    Unidade = vetor[5].ToLower().Trim(','),
+                    SaldoHospital = double.Parse(vetor[7])
+                });
+            }
             if (vetor.Length == 31)
             {
                 string[] vet1 = vetor[3].Split('-');
