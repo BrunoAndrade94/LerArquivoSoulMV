@@ -10,6 +10,9 @@ namespace ConsoleApp1.Excessoes.Relatorio
     {
         public RelatorioException(string Message) : base(Message) { }
 
+        public string ArqNaoContemDados = "arquivo não contêm dados";
+        public string ErroAoEscrever = "Erro ao Escrever!";
+
         public static void SeEhListaVazia<T>(IEnumerable<T> listaProduto)
         {
             // faz um casting para lista de produtos

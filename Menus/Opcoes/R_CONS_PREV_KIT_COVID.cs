@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using ConsoleApp1.Entidades;
 using ConsoleApp1.Excessoes.Relatorio;
-using System.Collections;
-using System.Linq;
 using ConsoleApp1.Views;
 using ConsoleApp1.Telas;
 

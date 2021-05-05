@@ -16,16 +16,17 @@ namespace ConsoleApp1.Arquivos
         // consegue escrever em arquivo .csv
         public static void Escrever<T>(IEnumerable<T> lista)
         {
+            var NomeArquivo = new FileInfo(R_CONS_PREV_KIT_COVID).Name;
             try
             {
                 Produto[] listaProduto = lista.ToArray() as Produto[];
                 RelatorioException.SeEhListaVazia(lista);
                 EscreveR_CONS_PREV_KIT_COVID(listaProduto);
-                Console.WriteLine("\n\nArquivo R_CONS_PREV_KIT_COVID gerado com sucesso!");
+                Console.WriteLine($"\n\nArquivo {NomeArquivo} gerado com sucesso!");
             }
             catch (IOException)
             {
-                Console.WriteLine("\n\n--- ATENÇÃO!\n Erro ao escrever\n O arquivo R_CONS_PREV_KIT_COVID está em uso por outro programa.");
+                Console.WriteLine($"\n\n--- ATENÇÃO!\n Erro ao escrever\n O arquivo {NomeArquivo}\n está em uso por outro programa.");
                 Console.ReadLine();
                 VMenu.Executar();
             }
