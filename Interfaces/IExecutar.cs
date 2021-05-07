@@ -2,8 +2,9 @@
 
 namespace ConsoleApp1.Interfaces
 {
-    interface IOpcaoMenu
+    interface IExecutar
     {
+        // ponto de entrada para quem assinar esse contrato
         public void Executar() { }
     }
 }

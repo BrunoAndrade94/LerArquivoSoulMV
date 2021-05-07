@@ -2,6 +2,7 @@
 using ConsoleApp1.Entidades;
 using ConsoleApp1.Abstratas;
 using System.Collections.Generic;
+using ConsoleApp1.Menus.Opcoes;
 
 namespace ConsoleApp1.Relatorios
 {
@@ -37,6 +38,21 @@ namespace ConsoleApp1.Relatorios
                 });
                 return;
             }
+            if (vetor.Length == 15)
+            {
+                // separa a string
+                string[] vet1 = vetor[1].Split('-');
+                // adiciona produto na lista
+                listaProduto.Add(new Produto()
+                {
+                    Codigo = int.Parse(vet1[0].Trim(',')),
+                    Nome = vet1[1].Trim().ToLower(),
+                    Unidade = vetor[3].ToLower(),
+                    SaldoHospital = double.Parse(vetor[5])
+                });
+                return;
+            }
+
             if (vetor.Length == 13)
             {
                 string[] vet1 = null;

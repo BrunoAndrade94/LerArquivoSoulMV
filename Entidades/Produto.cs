@@ -19,7 +19,7 @@ namespace ConsoleApp1.Entidades
         public double SaldoLoteTotal { get; set; }
         public double SaldoHospital { get; set; }
         public double Consumo { get; set; }
-        public double ConsumoPrevisto { get; set; }
+        public dynamic ConsumoPrevisto { get; set; }
 
         public Produto() { }
         public Produto(Produto produto)

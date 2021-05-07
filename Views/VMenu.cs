@@ -8,48 +8,23 @@ using ConsoleApp1.Arquivos;
 using System.IO;
 using ConsoleApp1.Excessoes.Relatorio;
 
+
 namespace ConsoleApp1.Views
 {
-    class VMenu : ConsoleCor
+    class VMenu : /*Menu,*/ IExecutar
     {
         // obtem itens do menu
-        public static IList<Menu> itensDoMenu = GetMenuItens();
+        public static IList<Menu> itensDoMenu;
         private static int opcao;
 
         public static object NomeArquivo { get; private set; }
 
         // ponto de entrada após a Main(próprio)
-        public static void Executar()
+        public void Executar()
         {
             try
             {
-                Console.Clear();
-                // inciando a aplicacao
-                if (TipoDeConsulta())
-                {
-                    ExecutarConsulta(opcao);
-                    Executar();
-                }
-                // encerrando a aplicacao
-                else
-                {
-                    Tela.ImprimeEncerramento();
-                    Environment.Exit(0);
-                }
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n  Erro ao abrir. O arquivo {LerArquivo.NomeArquivo}" +
-                    $" não foi encontrado.\n  Por favor verifique o arquivo e tente novamente.");
-                Console.ReadLine();
-                Executar();
-            }
-            catch (IOException)
-            {
-                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n  Erro ao acessar. O arquivo {LerArquivo.NomeArquivo}" +
-                    $" está em uso por outro programa.\n  Por favor verifique o arquivo e tente novamente.");
-                Console.ReadLine();
-                Executar();
+                IniciarAplicacao();
             }
             catch (RelatorioException e)
             {
@@ -57,42 +32,57 @@ namespace ConsoleApp1.Views
                 Console.ReadLine();
                 Executar();
             }
-            catch (ArgumentOutOfRangeException)
+            catch (DirectoryNotFoundException)
             {
-                Console.WriteLine($"\n\n--- ATENÇÃO!\n\n  Erro ao escrever o arquivo {LerArquivo.NomeArquivo}" +
-                    $" contêm dados em excesso.\n   Por favor verifique o arquivo e tente novamente.");
-                Console.ReadLine();
+                RelatorioException.DiretorioNaoEncontrado();
                 Executar();
             }
-            
+            catch (FileNotFoundException)
+            {
+                RelatorioException.ArquivoNaoEncontrado();
+                Executar();
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                RelatorioException.ArquivoDadosEmExcesso();
+                Executar();
+            }
+            catch (IOException)
+            {
+                RelatorioException.ArquivoEmUso();
+                Executar();
+            }
         }
-        
-        // executar consulta
-        public static void ExecutarConsulta(int opcao)
+
+        private static void IniciarAplicacao()
         {
-            // selecionar o item do menu
-            Menu itemCapturado = itensDoMenu[opcao - 2];
-            Type tipoClasse = itemCapturado.TipoClasse;
-            IOpcaoMenu itemSelecionado = Activator.CreateInstance(tipoClasse) as IOpcaoMenu;
-
-            // imprime opcao selecionada
-            Tela.ImprimeOpcaoSelecionada(itemCapturado);
-
-            itemSelecionado.Executar();
-            Console.WriteLine("\n\nTecle algo para continuar...");
-            Console.ReadKey();
-            //return itemSelecionado;
+            Console.Clear();
+            // inciando a aplicacao
+            if (TipoDeConsulta())
+            {
+                ExecutaConsulta.EConsulta(opcao, GetMenuItens());
+                var menu = new VMenu();
+                menu.Executar();
+            }
+            // encerrando a aplicacao
+            else
+            {
+                Tela.ImprimeEncerramento();
+                Environment.Exit(0);
+            }
         }
+
 
         // ao digitar caracter fora das opcoes, pede para digitar novamente
-        private static void DigiteNovamente(int opcao)
+        public static void DigiteNovamente(int opcao)
         {
             if (opcao == 0 || opcao > GetMenuItens().Count + 1)
             {
-                FonteVermelha();
+                ConsoleCor.FonteVermelha();
                 Tela.ImprimeSeDigitarOpcaoErrada();
-                FonteBranca();
-                TipoDeConsulta();
+                ConsoleCor.FonteBranca();
+                return;
+                //TipoDeConsulta();
             }
         }
 
@@ -107,19 +97,21 @@ namespace ConsoleApp1.Views
             if (opcao != 1)
             {
                 // ao digitar caracter fora das opcoes, pede para digitar novamente
-                DigiteNovamente(opcao);
+                ExecutaConsulta.DigiteNovamente(opcao, GetMenuItens(), typeof(VMenu));
                 // da sequencia a execucao da opcao selecionada
                 return true;
             }
             return false;
         }
 
+
         // lista de itens do menu principal
         public static IList<Menu> GetMenuItens()
         {
             return new List<Menu>
             {
-                new Menu("Consumo Kit COVID-19", typeof(R_CONS_PREV_KIT_COVID))
+                new Menu("Consumo Previsto Kit COVID-19", typeof(R_CONS_PREV_KIT_COVID)),
+                new Menu("Consumo Médio Mensal", typeof(R_CONS_MED_MEN))
             };
         }
 

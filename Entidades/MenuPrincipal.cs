@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp1.Menus
 {
-    class Menu : IOpcaoMenu
+    class Menu : IExecutar
     {
         public string Titulo { get; set; }
         public Type TipoClasse { get; set; }

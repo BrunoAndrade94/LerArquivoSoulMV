@@ -19,17 +19,28 @@ namespace ConsoleApp1.Arquivos
             var NomeArquivo = new FileInfo(R_CONS_PREV_KIT_COVID).Name;
             try
             {
-                Produto[] listaProduto = lista.ToArray() as Produto[];
-                RelatorioException.SeEhListaVazia(lista);
-                EscreveR_CONS_PREV_KIT_COVID(listaProduto);
-                Console.WriteLine($"\n\nArquivo {NomeArquivo} gerado com sucesso!");
+                VerificaEEscreve(lista, NomeArquivo);
             }
             catch (IOException)
             {
-                Console.WriteLine($"\n\n--- ATENÇÃO!\n Erro ao escrever\n O arquivo {NomeArquivo}\n está em uso por outro programa.");
-                Console.ReadLine();
-                VMenu.Executar();
+                ArquivoEmUso(NomeArquivo);
             }
+        }
+
+        private static void ArquivoEmUso(string NomeArquivo)
+        {
+            Console.WriteLine($"\n\n--- ATENÇÃO!\n Erro ao escrever\n O arquivo {NomeArquivo}\n está em uso por outro programa.");
+            Console.ReadLine();
+            var menu = new VMenu();
+            menu.Executar();
+        }
+
+        private static void VerificaEEscreve<T>(IEnumerable<T> lista, string NomeArquivo)
+        {
+            var listaProduto = lista.ToArray() as Produto[];
+            RelatorioException.SeEhListaVazia(lista);
+            EscreveR_CONS_PREV_KIT_COVID(listaProduto);
+            Console.WriteLine($"\n\nArquivo {NomeArquivo} gerado com sucesso!");
         }
 
         private static void EscreveR_CONS_PREV_KIT_COVID(Produto[] listaProduto)
@@ -41,7 +52,7 @@ namespace ConsoleApp1.Arquivos
                 {
                     EscreverProduto(listaProduto, sw, i);
                 }
-            } // cria e escreve no arquivo em csv
+            } // criar e escrever no arquivo em csv
         }
 
         // recebe os dados dos produtos e escreve no arquivo

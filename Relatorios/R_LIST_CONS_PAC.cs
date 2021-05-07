@@ -23,6 +23,7 @@ namespace ConsoleApp1.Relatorios
         private static void Le_R_LIST_CONS_PAC(string arquivo, List<Produto> listaProduto)
         {
             string[] vetor = arquivo.Split(';', '"');
+
             if (vetor.Length == 3 && vetor[2] == "")
             {
                 string[] Codigo_Nome_Unidade = vetor[0].Split(',');

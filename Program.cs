@@ -9,7 +9,8 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            VMenu.Executar();
+            var menu = new VMenu();
+            menu.Executar();
         }
     }
 }

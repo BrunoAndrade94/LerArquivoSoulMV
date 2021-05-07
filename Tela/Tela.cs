@@ -92,7 +92,7 @@ namespace ConsoleApp1.Telas
             int i = 1;
             FonteAzulDark();
             Console.WriteLine($"\n  Eai Ruderalis! Agora é {DateTime.Now.ToString("g")}");
-            Console.WriteLine("  Qual relatório?");
+            Console.WriteLine("  Qual relatório?\n");
             Console.WriteLine("  1 - Fechar Janela");
             ImprimeOpcoes(menuItens, i);
             FonteBranca();

@@ -6,26 +6,43 @@ using ConsoleApp1.Entidades;
 using ConsoleApp1.Excessoes.Relatorio;
 using ConsoleApp1.Views;
 using ConsoleApp1.Telas;
+using System.IO;
+using System.Linq;
 
 namespace ConsoleApp1.Menus.Opcoes
 {
-    public class R_CONS_PREV_KIT_COVID : IOpcaoMenu
+    public class R_CONS_PREV_KIT_COVID : IExecutar
     {
+        // armazena a opcao de lista selecionada
+        private static int opcao;
         // lista com codigo dos medicamentos do kit intubação
-        private static HashSet<int> ListaKI = GetListaKI();
+        private static HashSet<int> ListaKI;
 
-        private static HashSet<int> GetListaKI()
+        private static HashSet<int> GetListaKIMedic()
         {
             // medicamentos do kit intubação
             return new HashSet<int> {
-            55051, 55478, 54544, 56487,
-            54930, 55148, 55385, 55441,
+            55148, 55478, 54544, 56487,
+            54930, 55051, 55385, 55441,
             55495, 55610, 55791, 64164 };
         }
+        private static HashSet<int> GetListaKIMater()
+        {
+            // materiais
+            return new HashSet<int> {
+            55065, 55063, 55006, 55005 };
+        }
+
+
 
         // ponto de entrada chamada pela Main()
         public void Executar()
         {
+            OpcaoListaMedicOuMater();
+            // conversao dando problemca
+            // teria que levar esse metodo para um menu que erda de algum outro menu Base
+            ExecutaConsulta.DigiteNovamente(opcao, (ICollection<Menu>)GetListaMedicOuMater(opcao), typeof(R_CONS_PREV_KIT_COVID));
+
             // le arquivo e grava posicaoSaldo
             var posicaoSaldo = LerArquivo.Ler(LerArquivo.C_R_POS_EST_S);
 
@@ -34,14 +51,30 @@ namespace ConsoleApp1.Menus.Opcoes
 
             // gerar lista consumoPrevisto
             var consumoPrevisto = TempoDeUso(posicaoSaldo, consumoPaciente);
-            
+
             // ordena pelo codigo do produto
             consumoPrevisto.Sort();
-            
+
             // gerar arquivo consumoPrevisto
             EscreverArquivo.Escrever(consumoPrevisto);
-            
+
             Tela.Imprime_R_CONS_PREV_KIT_COVID(consumoPrevisto);
+        }
+
+        private static void OpcaoListaMedicOuMater()
+        {
+            ConsoleCor.FonteVermelha();
+            Console.WriteLine("\n 1 - Medicamentos");
+            Console.WriteLine(" 2 - Materiais");
+            ConsoleCor.FonteBranca();
+            int.TryParse(Console.ReadLine(), out opcao);
+        }
+
+        private static HashSet<int> GetListaMedicOuMater(int opcao)
+        {
+            if (opcao == 1) return ListaKI = GetListaKIMedic();
+            if (opcao == 2) return ListaKI = GetListaKIMater();
+            return null;
         }
 
         // cria nova lista com os medicamentos do kit intubacao com consumo previsto
@@ -61,11 +94,12 @@ namespace ConsoleApp1.Menus.Opcoes
             {
                 Console.WriteLine(e.Message);
                 Console.ReadKey();
-                VMenu.Executar();
+                var menu = new VMenu();
+                menu.Executar();
             }
             finally // realocar a lista novamente
             {
-                ListaKI = GetListaKI();
+                GetListaMedicOuMater(opcao);
             }
             return listaTempoUso;
         }
@@ -74,11 +108,15 @@ namespace ConsoleApp1.Menus.Opcoes
         private static void AddProdApenasSaldo(List<Produto> listaSaldo, List<Produto> listaTempoUso)
         {
             foreach (var produtoSaldo in listaSaldo)
-            {   // verifica se contem o produto na lista
+            {   
+                // verifica se contem o produto na lista
                 // que nao foi removido da filtragem anterior
                 if (ListaKI.Contains(produtoSaldo.Codigo))
                 {
+                    // adiciona produto sem consumo na lista de tempo de uso
                     AddProdSemConsumo(listaTempoUso, produtoSaldo);
+                    // remove da lista o codigo encontrado
+                    ListaKI.Remove(produtoSaldo.Codigo);
                 }
             }
         }
@@ -87,18 +125,23 @@ namespace ConsoleApp1.Menus.Opcoes
         private static void AddProdSaldoEConsumo(List<Produto> listaSaldo, List<Produto> listaConsumo, List<Produto> listaTempoUso)
         {
             foreach (var produtoSaldo in listaSaldo)
-            {   //verifica se o codigo contem na lista de saldo
+            {
+                //verifica se o codigo contem na lista de saldo
                 if (ListaKI.Contains(produtoSaldo.Codigo))
-                {   // percorre a lista de consumo
+                {
+                    // percorre a lista de consumo
                     foreach (var produtoConsumo in listaConsumo)
-                    {   // verifica se o codigo contem na lista de saldo
+                    {
+                        // verifica se o codigo contem na lista de saldo
                         if (ListaKI.Contains(produtoConsumo.Codigo))
-                        {   // verifica se os produtos sao os mesmo nas duas listas
+                        {
+                            // verifica se os produtos sao os mesmo nas duas listas
                             if (produtoSaldo.Codigo == produtoConsumo.Codigo)
-                            {   // remove da lista o codigo encontrado
-                                ListaKI.Remove(produtoSaldo.Codigo);
+                            {
                                 // adiciona produto na lista de tempo de uso
                                 AddProdComConsumo(listaTempoUso, produtoSaldo, produtoConsumo);
+                                // remove da lista o codigo encontrado
+                                ListaKI.Remove(produtoSaldo.Codigo);
                             }
                         }
                     }
@@ -107,7 +150,7 @@ namespace ConsoleApp1.Menus.Opcoes
         }
 
         // adiciona no arquivo produto que nao teve consumo
-        private static void AddProdSemConsumo(List<Produto> listaTempoUso, Produto produtoSaldo)
+        public static void AddProdSemConsumo(List<Produto> listaTempoUso, Produto produtoSaldo)
         {
             listaTempoUso.Add(new Produto()
             {
@@ -129,7 +172,7 @@ namespace ConsoleApp1.Menus.Opcoes
                 {
                     Codigo = produtoSaldo.Codigo,
                     Nome = produtoSaldo.Nome,
-                    ConsumoPrevisto = -1,
+                    ConsumoPrevisto = -1 + " mês",
                     SaldoHospital = produtoSaldo.SaldoHospital,
                     Consumo = produtoConsumo.Consumo
                 });
